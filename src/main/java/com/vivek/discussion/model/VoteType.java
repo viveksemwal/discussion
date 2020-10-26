@@ -11,14 +11,4 @@ public enum VoteType {
     VoteType(int direction) {
     }
 
-    public static VoteType lookup(Integer direction) {
-        return Arrays.stream(VoteType.values())
-                .filter(value -> value.getDirection().equals(direction))
-                .findAny()
-                .orElseThrow(() -> new ScpringRedditException("Vote not found"));
-    }
-
-    public Integer getDirection() {
-        return direction;
-    }
 }

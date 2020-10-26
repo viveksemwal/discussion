@@ -26,8 +26,10 @@ public class Subreddit {
     @NotBlank(message = "Description is required")
     private String description;
     @OneToMany(fetch = LAZY)
+    @JoinColumn(name = "postid")
     private List<Post> posts;
     private Instant createdDate;
     @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "userid")
     private User user;
 }

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -19,7 +18,7 @@ import java.time.Instant;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long postid;
 
     @NotBlank(message = "Cannot left this blank")
     private String postName;
