@@ -1,6 +1,7 @@
 package com.vivek.discussion.service;
 
 import com.vivek.discussion.dto.RegisterRequest;
+import com.vivek.discussion.model.NotificationEmail;
 import com.vivek.discussion.model.User;
 import com.vivek.discussion.model.VerificationToken;
 import com.vivek.discussion.repository.UserRepository;
@@ -22,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final MailService mailService;
 
     @Transactional
     public void signup(RegisterRequest registerRequest){
@@ -35,6 +37,9 @@ public class AuthService {
         userRepository.save(user);
 
         String token=generateRandomToken(user);
+        mailService.sendMail(new NotificationEmail("Please Activate Your Account",user.getEmail(),"thankyou For Signing In Into our disscusion form" +
+                "Please click the link below to get"+
+                "http://localhost:8080/api/auth/accountVerification/"+token));
 
     }
 
