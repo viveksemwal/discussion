@@ -1,18 +1,26 @@
 package com.vivek.discussion.service;
 
+import com.vivek.discussion.dto.AuthenticationResponse;
+import com.vivek.discussion.dto.LoginRequest;
 import com.vivek.discussion.dto.RegisterRequest;
+import com.vivek.discussion.exceptions.SpringDiscussionException;
 import com.vivek.discussion.model.NotificationEmail;
 import com.vivek.discussion.model.User;
 import com.vivek.discussion.model.VerificationToken;
 import com.vivek.discussion.repository.UserRepository;
 import com.vivek.discussion.repository.VerificationTokenRepository;
+import com.vivek.discussion.security.JwtProvider;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,6 +32,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public void signup(RegisterRequest registerRequest){
@@ -37,8 +47,8 @@ public class AuthService {
         userRepository.save(user);
 
         String token=generateRandomToken(user);
-        mailService.sendMail(new NotificationEmail("Please Activate Your Account",user.getEmail(),"thankyou For Signing In Into our disscusion form" +
-                "Please click the link below to get"+
+        mailService.sendMail(new NotificationEmail("Please Activate Your Account",user.getEmail(),"thank you For Signing In Into our disscusion form" +
+                "Please click the link below to get : "+
                 "http://localhost:8080/api/auth/accountVerification/"+token));
 
     }
@@ -51,5 +61,28 @@ public class AuthService {
         verificationTokenRepository.save(verificationToken);
         return s;
 
+    }
+
+    public void verifyAccount(String token) {
+       Optional<VerificationToken> verificationToken= verificationTokenRepository.findAllByToken(token);
+       verificationToken.orElseThrow(() -> new SpringDiscussionException("Invalid Token"));
+       fetchUserAndUnable(verificationToken.get());
+
+    }
+
+    @Transactional
+    void fetchUserAndUnable(VerificationToken verificationToken) {
+        String username=verificationToken.getUser().getUsername();
+        User user=userRepository.findByUsername(username).orElseThrow(()-> new SpringDiscussionException("User not found with name : "+username));
+        user.setEnabled(true);
+        userRepository.save(user);
+
+    }
+
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        Authentication authentication=authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token= jwtProvider.generateToken(authentication);
+        return new AuthenticationResponse(token,loginRequest.getUsername());
     }
 }

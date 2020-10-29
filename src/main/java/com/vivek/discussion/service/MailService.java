@@ -8,6 +8,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.internet.MimeMessage;
@@ -20,6 +21,7 @@ public class MailService {
     private final MailContextBuilder mailContextBuilder;
 
 
+    @Async
     public void sendMail(NotificationEmail notificationEmail){
         MimeMessagePreparator mimeMessagePreparator=mimeMessage -> {
             MimeMessageHelper mimeMessageHelper=new MimeMessageHelper(mimeMessage);
@@ -28,7 +30,7 @@ public class MailService {
             mimeMessageHelper.setSubject(notificationEmail.getSubject());
             mimeMessageHelper.setText(mailContextBuilder.build(notificationEmail.getBody()));
         };
-        //log.info(mimeMessagePreparator.toString());
+        
         try{
             javaMailSender.send(mimeMessagePreparator);
             log.info("Activation link is sent");
