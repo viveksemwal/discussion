@@ -74,6 +74,14 @@ public class AuthService {
     }
 
     @Transactional
+    public User getCurrentUser() {
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+        return userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new SpringDiscussionException("User name not found - " + principal.getUsername()));
+    }
+
+    @Transactional
     void fetchUserAndUnable(VerificationToken verificationToken) {
         String username=verificationToken.getUser().getUsername();
         User user=userRepository.findByUsername(username).orElseThrow(()-> new SpringDiscussionException("User not found with name : "+username));
