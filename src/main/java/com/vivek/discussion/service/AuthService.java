@@ -11,6 +11,7 @@ import com.vivek.discussion.repository.UserRepository;
 import com.vivek.discussion.repository.VerificationTokenRepository;
 import com.vivek.discussion.security.JwtProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,11 +20,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @Service
 @AllArgsConstructor
@@ -97,4 +101,6 @@ public class AuthService {
         String token= jwtProvider.generateToken(details);
         return new AuthenticationResponse(token,loginRequest.getUsername());
     }
+
+
 }

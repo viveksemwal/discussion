@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.HttpStatus.OK;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
@@ -38,5 +40,11 @@ public class AuthController {
 
 
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        return ResponseEntity.status(OK).body(" Token Deleted Successfully!!");
+    }
+
 
 }
